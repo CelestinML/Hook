@@ -2,10 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEditor;
 using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
+    private Animator anim;
+
+    public GameObject eyes;
+
     public Boolean air_control = true;
     public float gravity = 1;
     public float max_falling_speed = 10;
@@ -46,9 +51,13 @@ public class Controller : MonoBehaviour
     public Boolean wall_stuck_right, wall_stuck_left;
     public Boolean head_stuck;
 
+    private Vector3 mouse_pos;
+
     // Start is called before the first frame update
     void Start()
     {
+        anim = GetComponent<Animator>();
+
         was_jumping = false;
         j_decreasing = j_force / 200;
         strong_j_decreasing = j_decreasing * 4;
@@ -65,24 +74,25 @@ public class Controller : MonoBehaviour
         ////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////On lance les rayons//////////////////////////////
         // \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/  \/ //
-        landed_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 2, -v_dimension / 2, 0), -Vector2.up, det_distance * 2);
-        landed_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 2, -v_dimension / 2, 0), -Vector2.up, det_distance * 2);
+        landed_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 3, -v_dimension / 2, 0), -Vector2.up, det_distance * 2);
+        landed_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 3, -v_dimension / 2, 0), -Vector2.up, det_distance * 2);
         landed_middle = Physics2D.Raycast(transform.position + new Vector3(0, -v_dimension / 2, 0), -Vector2.up, det_distance * 2);
 
-        ground_check_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 2, -v_dimension / 2, 0), -Vector2.up, det_distance);
-        ground_check_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 2, -v_dimension / 2, 0), -Vector2.up, det_distance);
+        ground_check_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 3, -v_dimension / 2, 0), -Vector2.up, det_distance);
+        ground_check_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 3, -v_dimension / 2, 0), -Vector2.up, det_distance);
         ground_check_middle = Physics2D.Raycast(transform.position + new Vector3(0, -v_dimension / 2, 0), -Vector2.up, det_distance);
 
+        //A utiliser pour les pentes
         foot_stuck_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 2, -v_dimension / 2, 0), Vector2.right, det_distance);
         foot_stuck_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 2, -v_dimension / 2, 0), -Vector2.right, det_distance);
+
         knee_stuck_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 2, -v_dimension / 4, 0), Vector2.right, det_distance);
         knee_stuck_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 2, -v_dimension / 4, 0), -Vector2.right, det_distance);
-
         head_stuck_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 2, v_dimension / 2, 0), Vector2.right, det_distance);
         head_stuck_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 2, v_dimension / 2, 0), -Vector2.right, det_distance);
 
-        ceiling_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 2, v_dimension / 2, 0), Vector2.up, det_distance);
-        ceiling_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 2, v_dimension / 2, 0), Vector2.up, det_distance);
+        ceiling_right = Physics2D.Raycast(transform.position + new Vector3(h_dimension / 3, v_dimension / 2, 0), Vector2.up, det_distance);
+        ceiling_left = Physics2D.Raycast(transform.position + new Vector3(-h_dimension / 3, v_dimension / 2, 0), Vector2.up, det_distance);
         ceiling_middle = Physics2D.Raycast(transform.position + new Vector3(0, v_dimension / 2, 0), Vector2.up, det_distance);
         // /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\  /\ //
         ///////////////////////////////On lance les rayons//////////////////////////////
@@ -213,9 +223,13 @@ public class Controller : MonoBehaviour
         //On enregistre la vitesse courante pour l'utiliser les prochaines frames
         current_h_speed = x_speed;
 
+        anim.SetBool("Jumping", !landed);
+
         //On définit enfin la vitesse actuelle de notre personnage, qu'on additionne à la position actuelle
         speed = new Vector3(x_speed, y_speed, 0);
         transform.position += speed;
+
+        eyes.transform.position = transform.position + mouse_pos.normalized * 0.16f;
     }
 
     // Update is called once per frame
@@ -232,5 +246,16 @@ public class Controller : MonoBehaviour
             was_jumping = false;
         }
         movement_request = Input.GetAxis("Horizontal");
+        if (movement_request != 0)
+        {
+            anim.SetBool("Moving", true);
+        }
+        else
+        {
+            anim.SetBool("Moving", false);
+        }
+
+        //Calcul de la position de la souris par rapport au joueur
+        mouse_pos = Input.mousePosition - new Vector3(Screen.width / 2, Screen.height / 2, 0);
     }
 }
