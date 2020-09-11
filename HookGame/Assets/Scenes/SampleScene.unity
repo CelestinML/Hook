@@ -402,6 +402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyes: {fileID: 1545829985}
+  hook: {fileID: 0}
   air_control: 1
   gravity: 5
   max_falling_speed: 10
@@ -413,13 +414,6 @@ MonoBehaviour:
   det_distance: 0.01
   j_decreasing: 0.2
   strong_j_decreasing: 0
-  current_v_speed: 0
-  j_request: 0
-  landed: 0
-  grounded: 0
-  wall_stuck_right: 0
-  wall_stuck_left: 0
-  head_stuck: 0
 --- !u!212 &1137392445
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3168,8 +3162,8 @@ Tilemap:
   - first: {x: -5, y: 2, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 18
-      m_TileSpriteIndex: 18
+      m_TileIndex: 3
+      m_TileSpriteIndex: 3
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -4613,8 +4607,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 11400000, guid: 69dd2f7b5cb284842bcf7676c297a4b3, type: 2}
   - m_RefCount: 2
     m_Data: {fileID: 11400000, guid: 9378b0f1806a9e741b8c8b27bd7964ac, type: 2}
   - m_RefCount: 2
@@ -4643,7 +4637,7 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 3f389116d7ada5349994beab20f79532, type: 2}
   - m_RefCount: 16
     m_Data: {fileID: 11400000, guid: ba02db72ee0f4c146a2ef229a17ff335, type: 2}
-  - m_RefCount: 375
+  - m_RefCount: 374
     m_Data: {fileID: 11400000, guid: bd6da4766d1c19143ad0ccf383bd51e3, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
@@ -4652,8 +4646,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: -5274270234370642987, guid: 9359fc03ff064934baf23638396456f4, type: 3}
   - m_RefCount: 2
     m_Data: {fileID: 1680713046501002167, guid: 9359fc03ff064934baf23638396456f4, type: 3}
   - m_RefCount: 2
@@ -4682,7 +4676,7 @@ Tilemap:
     m_Data: {fileID: 1940044384358670937, guid: 9359fc03ff064934baf23638396456f4, type: 3}
   - m_RefCount: 16
     m_Data: {fileID: 5331757720867617967, guid: 9359fc03ff064934baf23638396456f4, type: 3}
-  - m_RefCount: 375
+  - m_RefCount: 374
     m_Data: {fileID: 4362130248060910229, guid: 9359fc03ff064934baf23638396456f4, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 425
