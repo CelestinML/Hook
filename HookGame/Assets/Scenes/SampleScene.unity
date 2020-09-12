@@ -363,10 +363,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1137392443}
   - component: {fileID: 1137392445}
-  - component: {fileID: 1137392446}
-  - component: {fileID: 1137392444}
   - component: {fileID: 1137392447}
   - component: {fileID: 1137392448}
+  - component: {fileID: 1137392444}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -402,18 +401,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyes: {fileID: 1545829985}
-  hook: {fileID: 0}
+  hook: {fileID: 1696271383831355629, guid: 094618b0be05cb1468af922480148a64, type: 3}
   air_control: 1
-  gravity: 5
+  gravity: 1
   max_falling_speed: 10
-  h_speed: 10
-  h_speed_smoothening: 1
-  h_slow_smoothening: 3
-  h_slow_smoothening_in_air: 1.5
-  j_force: 15
-  det_distance: 0.01
-  j_decreasing: 0.2
+  h_speed: 5
+  h_speed_smoothening: 0.5
+  h_slow_smoothening: 1
+  h_slow_smoothening_in_air: 0.5
+  j_force: 80
+  hook_force: 1
+  det_distance: 0.0001
+  j_decreasing: 0
   strong_j_decreasing: 0
+  hook_mask:
+    serializedVersion: 2
+    m_Bits: 768
+  circle: {fileID: 809292564835874502, guid: d417102ecb4afba41aa5417a66467ec1, type: 3}
+  hooked: 0
 --- !u!212 &1137392445
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -465,27 +470,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &1137392446
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1137392442}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!111 &1137392447
 Animation:
   m_ObjectHideFlags: 0
@@ -696,7 +680,7 @@ GameObject:
   - component: {fileID: 2019864208}
   - component: {fileID: 2019864207}
   - component: {fileID: 2019864209}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}

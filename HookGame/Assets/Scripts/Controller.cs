@@ -14,14 +14,20 @@ public class Controller : MonoBehaviour
     public Boolean air_control = true;
     public float gravity = 1;
     public float max_falling_speed = 10;
-    public float h_speed = 5;
+    public float h_speed = 500;
     public float h_speed_smoothening = 0.5f;
     public float h_slow_smoothening = 1;
     public float h_slow_smoothening_in_air = 0.5f;
     public float j_force = 80;
+    public float hook_force = 1;
     public float det_distance = 0.0001f;
     public float j_decreasing;
     public float strong_j_decreasing;
+    public LayerMask hook_mask;
+
+    //Debogage !!
+    public GameObject circle;
+    private GameObject instantiated_circle;
 
     private float current_h_speed;
     private float current_v_speed;
@@ -34,6 +40,7 @@ public class Controller : MonoBehaviour
 
     private float x_speed, y_speed;
     private Vector3 speed;
+    private Vector3 hook_speed;
 
     //Rays definition
     private RaycastHit2D landed_left, landed_right, landed_middle;
@@ -49,9 +56,15 @@ public class Controller : MonoBehaviour
     private Boolean grounded;
     private Boolean wall_stuck_right, wall_stuck_left;
     private Boolean head_stuck;
+    private Boolean hooking;
+    private Boolean prevent_hook_spam;
 
     //Pour tracker les yeux, et viser avec le grappin
     private Vector3 mouse_pos;
+    private Vector3 hook_aim;
+    private Vector3 hook_pos;
+    public Boolean hooked;
+    private GameObject instantiated_hook;
 
     //Pour gérer les animations
     private Animator anim;
@@ -69,6 +82,10 @@ public class Controller : MonoBehaviour
 
         current_h_speed = 0;
         current_v_speed = 0;
+
+        hooking = false;
+        hooked = false;
+        prevent_hook_spam = false;
     }
 
     private void FixedUpdate()
@@ -108,6 +125,8 @@ public class Controller : MonoBehaviour
         head_stuck = false;
         wall_stuck_right = false;
         wall_stuck_left = false;
+
+        hook_speed = Vector3.zero;
 
         if (landed_left.collider != null || landed_middle.collider != null || landed_right.collider != null)
         {
@@ -223,12 +242,70 @@ public class Controller : MonoBehaviour
 
         anim.SetBool("Jumping", !landed);
 
-        //On définit enfin la vitesse actuelle de notre personnage, qu'on additionne à la position actuelle
-        speed = new Vector3(x_speed, y_speed, 0);
-        transform.position += speed;
-
         //Positionnement des yeux
         eyes.transform.position = transform.position + mouse_pos.normalized * 0.16f;
+
+        if (hook_request)
+        {
+            if (!hooking && !prevent_hook_spam)
+            {
+                hooking = true;
+                instantiated_hook = Instantiate(hook, transform.position + (hook_aim.normalized * hook.GetComponent<Renderer>().bounds.size.x * 0.1f / 2), Quaternion.Euler(0, 0, Math.Sign(hook_aim.y) * Vector3.Angle(Vector2.right, hook_aim)));
+                instantiated_hook.transform.localScale = new Vector3(0.1f, 1, 1);
+            }
+            else if (instantiated_hook != null)
+            {
+                if (!hooked)
+                {
+                    RaycastHit2D hook_ray = Physics2D.Raycast(transform.position, hook_aim, instantiated_hook.GetComponent<Renderer>().bounds.size.x);
+                    if (hook_ray.collider != null)
+                    {
+                        hook_pos = hook_ray.point;
+                        hooked = true;
+                        instantiated_circle = Instantiate(circle, hook_pos, Quaternion.identity);
+                        Debug.Log("Hooked");
+                    }
+                    else
+                    {
+                        if (instantiated_hook.transform.localScale.x < 1)
+                        {
+                            instantiated_hook.transform.localScale += new Vector3(0.1f, 0, 0);
+                            instantiated_hook.transform.position = transform.position + (hook_aim.normalized * ((float)Math.Sqrt(Math.Pow(instantiated_hook.GetComponent<Renderer>().bounds.size.x, 2) + Math.Pow(instantiated_hook.GetComponent<Renderer>().bounds.size.y, 2)) / 2));
+                        }
+                        else
+                        {
+                            Destroy(instantiated_hook);
+                            hooking = false;
+                            prevent_hook_spam = true;
+                        }
+                    }
+                }
+                else
+                {
+                    instantiated_hook.transform.localScale = new Vector3(Vector2.Distance(transform.position, hook_pos) / hook.GetComponent<Renderer>().bounds.size.x, 1, 1);
+                    instantiated_hook.transform.position = new Vector3((hook_pos.x + transform.position.x) / 2, (hook_pos.y + transform.position.y) / 2, 1);
+                    hook_speed = (new Vector3(hook_pos.x - transform.position.x, hook_pos.y - transform.position.y, 0)).normalized * hook_force * Time.fixedDeltaTime;
+                }
+            }
+        }
+        else
+        {
+            hooked = false;
+            if (instantiated_hook != null)
+            {
+                Destroy(instantiated_hook);
+                hooking = false;
+                Destroy(instantiated_circle);
+            }
+            if (prevent_hook_spam)
+            {
+                prevent_hook_spam = false;
+            }
+        }
+
+        //On définit enfin la vitesse actuelle de notre personnage, qu'on additionne à la position actuelle
+        speed = (new Vector3(x_speed, y_speed, 0)) + hook_speed;
+        transform.position += speed;
     }
 
     // Update is called once per frame
@@ -236,7 +313,7 @@ public class Controller : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("Jump requested");
+            //Debug.Log("Jump requested");
             j_request = true;
         }
         if (Input.GetKeyUp(KeyCode.Space))
@@ -252,16 +329,19 @@ public class Controller : MonoBehaviour
         {
             anim.SetBool("Moving", false);
         }
-        if (Input.GetMouseButtonDown(1))
+
+        //Calcul de la position de la souris par rapport au centre de l'écran
+        mouse_pos = Input.mousePosition - new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+        if (!hooking && Input.GetKeyDown(KeyCode.Mouse1))
         {
+            //Debug.Log("Hook requested");
             hook_request = true;
+            hook_aim = mouse_pos;
         }
-        if (Input.GetMouseButtonUp(1))
+        if (Input.GetKeyUp(KeyCode.Mouse1))
         {
             hook_request = false;
         }
-
-        //Calcul de la position de la souris par rapport au joueur
-        mouse_pos = Input.mousePosition - new Vector3(Screen.width / 2, Screen.height / 2, 0);
     }
 }
